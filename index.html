@@ -525,7 +525,7 @@ async function runScan() {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: 'Run the EHR prospecting scan now. Return the JSON array.' }]
@@ -714,7 +714,7 @@ function draftOutreach(id) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514', max_tokens: 300,
+      model: 'claude-sonnet-4-6', max_tokens: 300,
       messages: [{ role: 'user', content: `Draft a personalized outreach message for this EHR lead. Name: ${l.name}. Title: ${l.title}. Specialty: ${l.specialty}. Signal: ${l.signalSummary}. Signal type: ${l.signalType}. Practice: ${l.practiceType}. Keep under 100 words, warm but professional, reference their specific pain point, invite a brief call. No subject line needed.` }]
     })
   }).then(r => r.json()).then(d => {
