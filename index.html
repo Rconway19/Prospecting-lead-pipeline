@@ -4,747 +4,320 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EHR Lead Pipeline</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
-:root {
-  --bg: #f5f4f0;
-  --surface: #ffffff;
-  --surface2: #f0efe9;
-  --border: rgba(0,0,0,0.09);
-  --border-med: rgba(0,0,0,0.14);
-  --text: #1a1916;
-  --text2: #6b6960;
-  --text3: #9b9a94;
-  --blue: #1a5fd4;
-  --blue-bg: #edf2fc;
-  --blue-text: #1040a0;
-  --teal: #0d7a5f;
-  --teal-bg: #e4f5ef;
-  --teal-text: #095c47;
-  --amber: #b36a00;
-  --amber-bg: #fdf3e0;
-  --amber-text: #8a5000;
-  --coral: #c4411a;
-  --coral-bg: #fdf0eb;
-  --coral-text: #9a3113;
-  --red-bg: #fceaea;
-  --red-text: #8b2020;
-  --radius: 10px;
-  --radius-sm: 6px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  min-height: 100vh;
-}
-/* Layout */
-.app { display: flex; flex-direction: column; min-height: 100vh; }
-.topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.topbar-left { display: flex; align-items: center; gap: 10px; }
-.logo-mark {
-  width: 30px; height: 30px; border-radius: 8px;
-  background: var(--text); display: flex; align-items: center; justify-content: center;
-}
-.logo-mark i { color: #fff; font-size: 16px; }
-.topbar-title { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
-.topbar-right { display: flex; align-items: center; gap: 8px; }
-
-.sync-pill {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 11px; padding: 4px 10px;
-  border-radius: 20px;
-  background: var(--surface2);
-  color: var(--text2);
-  border: 1px solid var(--border);
-  font-family: 'DM Mono', monospace;
-  transition: all 0.3s;
-}
-.sync-pill.live { background: var(--teal-bg); color: var(--teal-text); border-color: rgba(13,122,95,0.2); }
-.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.6; }
-.sync-pill.live .sync-dot { animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
-
-.btn {
-  height: 32px; padding: 0 14px; font-size: 12px; font-weight: 500;
-  border-radius: var(--radius-sm); border: 1px solid var(--border-med);
-  background: var(--surface); color: var(--text);
-  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
-  font-family: 'DM Sans', sans-serif;
-  transition: background 0.12s, transform 0.1s;
-}
-.btn:hover { background: var(--surface2); }
-.btn:active { transform: scale(0.98); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
-.btn-primary:hover { background: #2d2c28; }
-.btn-ghost { border-color: transparent; background: transparent; color: var(--text2); }
-.btn-ghost:hover { background: var(--surface2); color: var(--text); }
-.btn-danger { color: var(--coral); border-color: rgba(196,65,26,0.25); }
-.btn-danger:hover { background: var(--coral-bg); }
-
-/* Controls bar */
-.controls-bar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 24px;
-  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-}
-.filter-select {
-  height: 32px; padding: 0 10px; font-size: 12px;
-  border-radius: var(--radius-sm); border: 1px solid var(--border-med);
-  background: var(--surface2); color: var(--text);
-  font-family: 'DM Sans', sans-serif; cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6960'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 26px;
-}
-.filter-select:focus { outline: none; border-color: var(--blue); }
-.spacer { flex: 1; }
-
-/* Stats */
-.stats-row {
-  display: grid; grid-template-columns: repeat(5, 1fr);
-  gap: 12px; padding: 16px 24px;
-  background: var(--bg);
-}
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-}
-.stat-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 6px; }
-.stat-val { font-size: 26px; font-weight: 500; font-family: 'DM Mono', monospace; letter-spacing: -0.02em; line-height: 1; }
-.val-blue { color: var(--blue); }
-.val-teal { color: var(--teal); }
-.val-amber { color: var(--amber); }
-.val-coral { color: var(--coral); }
-
-/* Progress */
-.progress-pane {
-  padding: 20px 24px;
-  display: none; flex-direction: column; gap: 10px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-.progress-pane.show { display: flex; }
-.progress-step { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text3); transition: color 0.2s; }
-.progress-step.done { color: var(--teal); }
-.progress-step.active { color: var(--text); }
-.p-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-med); flex-shrink: 0; transition: all 0.2s; }
-.progress-step.done .p-dot { background: var(--teal); }
-.progress-step.active .p-dot { background: var(--blue); box-shadow: 0 0 0 3px var(--blue-bg); }
-
-/* Leads */
-.leads-section { padding: 16px 24px; display: flex; flex-direction: column; gap: 8px; }
-
-.lead-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: box-shadow 0.15s;
-}
-.lead-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-.lead-card.score-5 { border-left: 3px solid var(--blue); }
-.lead-card.score-4 { border-left: 3px solid var(--teal); }
-.lead-card.score-3 { border-left: 3px solid var(--amber); }
-.lead-card.dismissed { opacity: 0.4; }
-
-.lead-header {
-  padding: 14px 16px;
-  display: flex; align-items: flex-start; gap: 12px;
-  cursor: pointer; user-select: none;
-}
-.lead-header:hover { background: var(--bg); }
-.avatar {
-  width: 38px; height: 38px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 500; flex-shrink: 0;
-  font-family: 'DM Mono', monospace;
-}
-.av-blue { background: var(--blue-bg); color: var(--blue-text); }
-.av-teal { background: var(--teal-bg); color: var(--teal-text); }
-.av-amber { background: var(--amber-bg); color: var(--amber-text); }
-.lead-info { flex: 1; min-width: 0; }
-.lead-name {
-  font-size: 13px; font-weight: 500; margin-bottom: 2px;
-  display: flex; align-items: center; gap: 6px;
-}
-.new-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); flex-shrink: 0; }
-.lead-sub { font-size: 11px; color: var(--text2); }
-.badges { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; }
-.badge {
-  font-size: 10px; font-weight: 500; padding: 2px 7px;
-  border-radius: 4px; white-space: nowrap;
-}
-.b-blue { background: var(--blue-bg); color: var(--blue-text); }
-.b-teal { background: var(--teal-bg); color: var(--teal-text); }
-.b-amber { background: var(--amber-bg); color: var(--amber-text); }
-.b-gray { background: var(--surface2); color: var(--text2); }
-.b-coral { background: var(--coral-bg); color: var(--coral-text); }
-.b-new { background: var(--red-bg); color: var(--red-text); font-weight: 600; }
-.b-contacted { background: var(--teal-bg); color: var(--teal-text); }
-
-.score-circle {
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 500; flex-shrink: 0;
-  font-family: 'DM Mono', monospace;
-}
-.sc-5 { background: var(--blue-bg); color: var(--blue-text); }
-.sc-4 { background: var(--teal-bg); color: var(--teal-text); }
-.sc-3 { background: var(--amber-bg); color: var(--amber-text); }
-
-.lead-body {
-  display: none; border-top: 1px solid var(--border);
-  padding: 14px 16px; font-size: 12px; color: var(--text2); line-height: 1.6;
-}
-.lead-body.open { display: block; }
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; font-size: 11px; margin-bottom: 10px; }
-.detail-grid dt { color: var(--text3); }
-.detail-grid dd { color: var(--text); font-weight: 500; }
-.signal-quote {
-  background: var(--bg); border-left: 2px solid var(--border-med);
-  padding: 8px 12px; font-size: 11px; color: var(--text2); margin: 10px 0;
-  border-radius: 0 4px 4px 0;
-}
-.action-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-
-/* Empty */
-.empty {
-  text-align: center; padding: 60px 20px; color: var(--text3);
-}
-.empty i { font-size: 32px; margin-bottom: 10px; display: block; opacity: 0.4; }
-.empty strong { color: var(--text2); }
-
-/* Toast */
-.toast {
-  position: fixed; bottom: 20px; right: 20px;
-  background: var(--text); color: #fff;
-  border-radius: var(--radius-sm); padding: 9px 16px;
-  font-size: 12px; display: flex; align-items: center; gap: 7px;
-  transform: translateY(60px); opacity: 0;
-  transition: transform 0.22s ease, opacity 0.22s ease;
-  z-index: 200;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-
-/* API key setup */
-.setup-banner {
-  background: var(--amber-bg); border-bottom: 1px solid rgba(179,106,0,0.2);
-  padding: 10px 24px; display: flex; align-items: center; gap: 10px;
-  font-size: 12px; color: var(--amber-text);
-}
-.setup-banner input {
-  height: 30px; padding: 0 10px; font-size: 12px;
-  border-radius: var(--radius-sm); border: 1px solid rgba(179,106,0,0.3);
-  background: #fff; color: var(--text); width: 280px;
-  font-family: 'DM Mono', monospace;
-}
-.setup-banner input:focus { outline: none; border-color: var(--amber); }
-
-@media (max-width: 640px) {
-  .stats-row { grid-template-columns: repeat(3,1fr); }
-  .topbar { padding: 0 16px; }
-  .controls-bar, .leads-section, .stats-row { padding-left: 16px; padding-right: 16px; }
-}
+:root{--bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:rgba(0,0,0,0.09);--border-med:rgba(0,0,0,0.14);--text:#1a1916;--text2:#6b6960;--text3:#9b9a94;--blue:#1a5fd4;--blue-bg:#edf2fc;--blue-text:#1040a0;--teal:#0d7a5f;--teal-bg:#e4f5ef;--teal-text:#095c47;--amber:#b36a00;--amber-bg:#fdf3e0;--amber-text:#8a5000;--coral:#c4411a;--coral-bg:#fdf0eb;--coral-text:#9a3113;--r:10px;--rs:6px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:12px}
+.tl{display:flex;align-items:center;gap:10px}
+.lm{width:30px;height:30px;border-radius:8px;background:var(--text);display:flex;align-items:center;justify-content:center}
+.lm i{color:#fff;font-size:16px}
+.tt{font-size:15px;font-weight:500}
+.tr{display:flex;align-items:center;gap:8px}
+.sync{display:flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:20px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);font-family:'DM Mono',monospace}
+.sync.live{background:var(--teal-bg);color:var(--teal-text);border-color:rgba(13,122,95,0.2)}
+.sdot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.6}
+.sync.live .sdot{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+button{height:32px;padding:0 14px;font-size:12px;font-weight:500;border-radius:var(--rs);border:1px solid var(--border-med);background:var(--surface);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;transition:background .12s}
+button:hover{background:var(--surface2)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.btn-p{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-p:hover{background:#2d2c28}
+.btn-g{border-color:transparent;background:transparent;color:var(--text2)}
+.btn-g:hover{background:var(--surface2)}
+.btn-d{color:var(--coral);border-color:rgba(196,65,26,.25)}
+.btn-d:hover{background:var(--coral-bg)}
+.setup{background:var(--amber-bg);border-bottom:1px solid rgba(179,106,0,.2);padding:14px 24px;display:none;flex-direction:column;gap:10px}
+.setup.on{display:flex}
+.setup-title{font-size:12px;font-weight:500;color:var(--amber-text);display:flex;align-items:center;gap:6px}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sf label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--amber-text);display:block;margin-bottom:3px}
+.sf input{width:100%;height:30px;padding:0 8px;font-size:11px;border-radius:var(--rs);border:1px solid rgba(179,106,0,.3);background:#fff;color:var(--text);font-family:'DM Mono',monospace}
+.sf input:focus{outline:none;border-color:var(--amber)}
+.setup-note{font-size:10px;color:var(--text3)}
+.controls{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+select{height:32px;padding:0 26px 0 10px;font-size:12px;border-radius:var(--rs);border:1px solid var(--border-med);background:var(--surface2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6960'/%3E%3C/svg%3E") no-repeat right 8px center;color:var(--text);font-family:'DM Sans',sans-serif;appearance:none}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:16px 24px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.sl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px}
+.sv{font-size:26px;font-weight:500;font-family:'DM Mono',monospace;line-height:1}
+.vb{color:var(--blue)}.vt{color:var(--teal)}.va{color:var(--amber)}.vc{color:var(--coral)}
+.prog{padding:0 24px;display:none;flex-direction:column;gap:10px}
+.prog.on{display:flex;padding-bottom:16px}
+.ps{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text3)}
+.ps.done{color:var(--teal)}.ps.active{color:var(--text)}
+.pd{width:7px;height:7px;border-radius:50%;background:var(--border-med);flex-shrink:0}
+.ps.done .pd{background:var(--teal)}.ps.active .pd{background:var(--blue)}
+.leads{padding:16px 24px;display:flex;flex-direction:column;gap:8px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.card.s5{border-left:3px solid var(--blue)}.card.s4{border-left:3px solid var(--teal)}.card.s3{border-left:3px solid var(--amber)}
+.card.dis{opacity:.4}
+.ch{padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;user-select:none}
+.ch:hover{background:var(--bg)}
+.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;font-family:'DM Mono',monospace}
+.av5{background:var(--blue-bg);color:var(--blue-text)}.av4{background:var(--teal-bg);color:var(--teal-text)}.av3{background:var(--amber-bg);color:var(--amber-text)}
+.ci{flex:1;min-width:0}
+.cn{font-size:13px;font-weight:500;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.ndot{width:6px;height:6px;border-radius:50%;background:var(--coral);flex-shrink:0}
+.cr{font-size:11px;color:var(--text2)}
+.bgs{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.bg{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.bbl{background:var(--blue-bg);color:var(--blue-text)}.btl{background:var(--teal-bg);color:var(--teal-text)}.bam{background:var(--amber-bg);color:var(--amber-text)}.bgy{background:var(--surface2);color:var(--text2)}.bco{background:var(--coral-bg);color:var(--coral-text)}.bnw{background:#fceaea;color:#791f1f;font-weight:600}.bdn{background:var(--teal-bg);color:var(--teal-text)}
+.sco{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;font-family:'DM Mono',monospace}
+.sco5{background:var(--blue-bg);color:var(--blue-text)}.sco4{background:var(--teal-bg);color:var(--teal-text)}.sco3{background:var(--amber-bg);color:var(--amber-text)}
+.cb{display:none;border-top:1px solid var(--border);padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.6}
+.cb.open{display:block}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;font-size:11px;margin-bottom:10px}
+.dg dt{color:var(--text3)}.dg dd{color:var(--text);font-weight:500}
+.sq{background:var(--bg);border-left:2px solid var(--border-med);padding:8px 12px;font-size:11px;color:var(--text2);margin:10px 0}
+.ar{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty i{font-size:32px;margin-bottom:10px;display:block;opacity:.4}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;border-radius:var(--rs);padding:9px 16px;font-size:12px;display:flex;align-items:center;gap:7px;transform:translateY(60px);opacity:0;transition:transform .22s,opacity .22s;z-index:200}
+.toast.on{transform:translateY(0);opacity:1}
+@media(max-width:640px){.stats{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
-<div class="app">
-
-  <!-- Top bar -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="logo-mark"><i class="ti ti-radar" aria-hidden="true"></i></div>
-      <span class="topbar-title">EHR Lead Pipeline</span>
-    </div>
-    <div class="topbar-right">
-      <div class="sync-pill" id="sync-pill">
-        <span class="sync-dot"></span>
-        <span id="sync-text">Loading…</span>
-      </div>
-      <button class="btn btn-danger" onclick="clearAll()"><i class="ti ti-trash" aria-hidden="true"></i> Clear all</button>
-      <button class="btn btn-primary" id="run-btn" onclick="runScan()"><i class="ti ti-player-play" aria-hidden="true"></i> Run scan</button>
-    </div>
-  </header>
-
-  <!-- Setup banner -->
-  <div class="setup-banner" id="setup-banner" style="flex-direction:column;align-items:flex-start;gap:10px;display:none">
-    <div style="display:flex;align-items:center;gap:8px;font-weight:500;color:var(--amber-text)">
-      <i class="ti ti-settings" aria-hidden="true"></i> One-time setup required
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;width:100%">
-      <div>
-        <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--amber-text);margin-bottom:4px">Anthropic API Key</div>
-        <input type="password" id="api-key-input" placeholder="sk-ant-…" oninput="saveConfig()" style="width:100%" />
-      </div>
-      <div>
-        <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--amber-text);margin-bottom:4px">Supabase URL</div>
-        <input type="text" id="sb-url-input" placeholder="https://xxxx.supabase.co" oninput="saveConfig()" style="width:100%" />
-      </div>
-      <div>
-        <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--amber-text);margin-bottom:4px">Supabase Anon Key</div>
-        <input type="password" id="sb-key-input" placeholder="eyJh…" oninput="saveConfig()" style="width:100%" />
-      </div>
-    </div>
-    <div style="font-size:11px;color:var(--text3)">All keys stored in your browser only. <a href="https://supabase.com" target="_blank" style="color:var(--amber-text)">Create free Supabase account →</a></div>
+<header class="topbar">
+  <div class="tl">
+    <div class="lm"><i class="ti ti-radar" aria-hidden="true"></i></div>
+    <span class="tt">EHR Lead Pipeline</span>
   </div>
-
-  <!-- Filters -->
-  <div class="controls-bar">
-    <select class="filter-select" id="sig-filter">
-      <option value="all">All signals</option>
-      <option value="recommendation">Seeking recommendation</option>
-      <option value="dissatisfied">Dissatisfied w/ EHR</option>
-      <option value="new-practice">New practice</option>
-      <option value="guidance">Practice mgmt</option>
-    </select>
-    <select class="filter-select" id="tier-filter">
-      <option value="all">All tiers</option>
-      <option value="1">Tier 1 — Primary care</option>
-      <option value="2">Tier 2 — Behavioral / PT</option>
-      <option value="3">Tier 3 — Specialist</option>
-    </select>
-    <select class="filter-select" id="score-filter">
-      <option value="all">All scores</option>
-      <option value="5">5 — Priority</option>
-      <option value="4">4 — Strong</option>
-      <option value="3">3 — Qualified</option>
-    </select>
-    <select class="filter-select" id="status-filter">
-      <option value="all">All statuses</option>
-      <option value="new">New only</option>
-      <option value="active">Active</option>
-      <option value="dismissed">Dismissed</option>
-    </select>
+  <div class="tr">
+    <div class="sync" id="syn"><span class="sdot"></span><span id="stxt">Loading…</span></div>
+    <button class="btn-d" onclick="clearAll()"><i class="ti ti-trash" aria-hidden="true"></i> Clear</button>
+    <button class="btn-p" id="run-btn" onclick="runScan()"><i class="ti ti-player-play" aria-hidden="true"></i> Run scan</button>
   </div>
-
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Total leads</div><div class="stat-val" id="s-total">—</div></div>
-    <div class="stat-card"><div class="stat-label">New</div><div class="stat-val val-coral" id="s-new">—</div></div>
-    <div class="stat-card"><div class="stat-label">Priority · 5</div><div class="stat-val val-blue" id="s-5">—</div></div>
-    <div class="stat-card"><div class="stat-label">Strong · 4</div><div class="stat-val val-teal" id="s-4">—</div></div>
-    <div class="stat-card"><div class="stat-label">Qualified · 3</div><div class="stat-val val-amber" id="s-3">—</div></div>
+</header>
+ 
+<div class="setup" id="setup">
+  <div class="setup-title"><i class="ti ti-settings" aria-hidden="true"></i> Connect Supabase — shared lead pool for you and your VP</div>
+  <div class="setup-grid">
+    <div class="sf"><label>Supabase URL</label><input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" oninput="saveCfg()"></div>
+    <div class="sf"><label>Supabase Anon Key</label><input type="password" id="sb-key" placeholder="eyJh…" oninput="saveCfg()"></div>
   </div>
-
-  <!-- Progress -->
-  <div class="progress-pane" id="progress-pane">
-    <div class="progress-step" id="ps1"><span class="p-dot"></span>Searching Reddit (r/medicine, r/EHR, r/physicianassistant…)</div>
-    <div class="progress-step" id="ps2"><span class="p-dot"></span>Searching web forums &amp; Q&amp;A sites</div>
-    <div class="progress-step" id="ps3"><span class="p-dot"></span>Scanning G2 &amp; Capterra for negative reviews</div>
-    <div class="progress-step" id="ps4"><span class="p-dot"></span>Scoring &amp; qualifying leads</div>
-    <div class="progress-step" id="ps5"><span class="p-dot"></span>Merging with shared lead pool</div>
-  </div>
-
-  <!-- Leads -->
-  <div class="leads-section" id="leads-section">
-    <div class="empty"><i class="ti ti-cloud-download" aria-hidden="true"></i><p>Loading lead pool…</p></div>
-  </div>
-
+  <div class="setup-note">Stored in your browser only. AI scanning is handled server-side — no Anthropic key needed here.</div>
 </div>
-
-<!-- Toast -->
-<div class="toast" id="toast"><i class="ti ti-check" aria-hidden="true"></i><span id="toast-msg"></span></div>
-
+ 
+<div class="controls">
+  <select id="f-sig"><option value="all">All signals</option><option value="recommendation">Seeking recommendation</option><option value="dissatisfied">Dissatisfied w/ EHR</option><option value="new-practice">New practice</option><option value="guidance">Practice mgmt</option></select>
+  <select id="f-tier"><option value="all">All tiers</option><option value="1">Tier 1 — Primary care</option><option value="2">Tier 2 — Behavioral/PT</option><option value="3">Tier 3 — Specialist</option></select>
+  <select id="f-score"><option value="all">All scores</option><option value="5">5 — Priority</option><option value="4">4 — Strong</option><option value="3">3 — Qualified</option></select>
+  <select id="f-status"><option value="all">All statuses</option><option value="new">New only</option><option value="active">Active</option><option value="dismissed">Dismissed</option></select>
+  <button class="btn-g" style="margin-left:auto;font-size:11px" onclick="toggleSetup()"><i class="ti ti-settings" aria-hidden="true"></i> Supabase</button>
+</div>
+ 
+<div class="stats">
+  <div class="stat"><div class="sl">Total leads</div><div class="sv" id="st">—</div></div>
+  <div class="stat"><div class="sl">New</div><div class="sv vc" id="sn">—</div></div>
+  <div class="stat"><div class="sl">Priority · 5</div><div class="sv vb" id="s5">—</div></div>
+  <div class="stat"><div class="sl">Strong · 4</div><div class="sv vt" id="s4">—</div></div>
+  <div class="stat"><div class="sl">Qualified · 3</div><div class="sv va" id="s3">—</div></div>
+</div>
+ 
+<div class="prog" id="prog">
+  <div class="ps" id="p1"><span class="pd"></span>Searching Reddit (r/medicine, r/EHR, r/physicianassistant…)</div>
+  <div class="ps" id="p2"><span class="pd"></span>Searching web forums &amp; Q&amp;A sites</div>
+  <div class="ps" id="p3"><span class="pd"></span>Scanning G2 &amp; Capterra for negative reviews</div>
+  <div class="ps" id="p4"><span class="pd"></span>Scoring &amp; qualifying leads</div>
+  <div class="ps" id="p5"><span class="pd"></span>Saving to shared pool</div>
+</div>
+ 
+<div class="leads" id="leads">
+  <div class="empty"><i class="ti ti-cloud-download" aria-hidden="true"></i><p>Loading lead pool…</p></div>
+</div>
+ 
+<div class="toast" id="toast"><i class="ti ti-check" aria-hidden="true" style="color:#5dcaa5"></i><span id="tmsg"></span></div>
+ 
 <script>
-let allLeads = [];
-let sbUrl = '', sbKey = '', anthropicKey = '';
-
-const SYSTEM_PROMPT = `You are an expert B2B sales prospecting agent specializing in health tech EHR systems for small independent medical practices.
-
-Generate 8-10 realistic, qualified EHR buyer leads based on real signal patterns you know from Reddit (r/medicine, r/EHR, r/physicianassistant, r/Noctor), web forums, G2, and Capterra.
-
-Qualification: small/independent practice (1-10 providers), clear buying signal in last 6 months, decision-maker role.
-
-Signal types: "recommendation" (asking for EHR suggestions), "dissatisfied" (complaining about current EHR), "new-practice" (opening/going independent), "guidance" (practice mgmt/setup questions).
-
-Signal strength 1-3: 3=direct EHR request or new practice announcement, 2=EHR complaint or practice mgmt question, 1=indirect.
-Specialty tiers — Tier 1 (+2 pts): family medicine, internal medicine, pediatrics, OB-GYN, urgent care, primary care. Tier 2 (+1 pt): psychiatry, behavioral health, PT, chiropractic, OT, allergy. Tier 3 (+0 pts): dermatology, ophthalmology, surgery, radiology, cosmetic.
-Final score = signal strength + tier modifier (max 5). Only include scores 3-5.
-
-Return ONLY a valid JSON array, no markdown fences, no preamble. Each object:
-{"id":"unique 8-char hex","name":"realistic full name or username","title":"clinical role","specialty":"specialty name","tier":1,"practiceType":"solo or small group","location":"City, ST","signalType":"recommendation","signalStrength":3,"finalScore":5,"source":"Reddit","signalSummary":"1-2 sentences describing their post or review","signalDate":"e.g. May 2025","contactInfo":"reddit.com/u/username or unknown","notes":"useful outreach context","avatarInitials":"2 chars"}
-
-Vary specialties, locations, signal sources, and scores. Make leads feel like real people from these communities.`;
-
-// Config — stored locally per browser, never shared
-function saveConfig() {
-  anthropicKey = document.getElementById('api-key-input').value.trim();
-  sbUrl = document.getElementById('sb-url-input').value.trim().replace(/\/$/, '');
-  sbKey = document.getElementById('sb-key-input').value.trim();
-  if (anthropicKey) localStorage.setItem('ehr_anthropic_key', anthropicKey);
-  if (sbUrl) localStorage.setItem('ehr_sb_url', sbUrl);
-  if (sbKey) localStorage.setItem('ehr_sb_key', sbKey);
-  checkBanner();
+const PROXY='https://xbmejxbbeoitoitsnqxz.supabase.co/functions/v1/quick-handler';
+const LK='ehr_leads_v4';
+let leads=[],sbUrl='',sbKey='',setupOpen=false;
+ 
+const PROMPT='You are a B2B sales prospecting agent for health tech EHR systems targeting small independent medical practices. Generate exactly 8 qualified EHR buyer leads based on realistic signal patterns from Reddit (r/medicine, r/EHR, r/physicianassistant, r/Noctor), web forums, G2, and Capterra. Return ONLY a raw JSON array with no markdown fences, no backticks, no text before or after. Start with [ and end with ]. Each element: {"id":"8charhex","name":"Full Name","title":"role","specialty":"name","tier":1,"practiceType":"solo","location":"City, ST","signalType":"recommendation","signalStrength":3,"finalScore":5,"source":"Reddit","signalSummary":"1-2 sentence description.","signalDate":"Month YYYY","contactInfo":"url or unknown","notes":"outreach tip","avatarInitials":"AB"}. signalType: recommendation|dissatisfied|new-practice|guidance. tier 1=primary care/family medicine/internal medicine/pediatrics/OB-GYN/urgent care (+2pts). tier 2=psychiatry/behavioral health/PT/chiro/OT/allergy (+1pt). tier 3=derm/ophthalmology/surgery/radiology (+0pts). finalScore=signalStrength(1-3)+tier modifier, range 3-5 only.';
+ 
+function saveCfg(){
+  sbUrl=(document.getElementById('sb-url').value||'').trim().replace(/\/$/,'');
+  sbKey=(document.getElementById('sb-key').value||'').trim();
+  if(sbUrl)localStorage.setItem('ehr_sb_url',sbUrl);
+  if(sbKey)localStorage.setItem('ehr_sb_key',sbKey);
 }
-function loadConfig() {
-  anthropicKey = localStorage.getItem('ehr_anthropic_key') || '';
-  sbUrl = localStorage.getItem('ehr_sb_url') || '';
-  sbKey = localStorage.getItem('ehr_sb_key') || '';
-  if (anthropicKey) document.getElementById('api-key-input').value = anthropicKey;
-  if (sbUrl) document.getElementById('sb-url-input').value = sbUrl;
-  if (sbKey) document.getElementById('sb-key-input').value = sbKey;
+function loadCfg(){
+  sbUrl=localStorage.getItem('ehr_sb_url')||'';
+  sbKey=localStorage.getItem('ehr_sb_key')||'';
+  if(sbUrl)document.getElementById('sb-url').value=sbUrl;
+  if(sbKey)document.getElementById('sb-key').value=sbKey;
 }
-function getKey() { return anthropicKey; }
-function checkBanner() {
-  const banner = document.getElementById('setup-banner');
-  if (anthropicKey && sbUrl && sbKey) {
-    banner.style.display = 'none';
-  } else {
-    banner.style.display = 'flex';
-  }
+function toggleSetup(){setupOpen=!setupOpen;document.getElementById('setup').classList.toggle('on',setupOpen);}
+ 
+async function sbReq(method,path,body){
+  const r=await fetch(sbUrl+'/rest/v1/'+path,{method,headers:{'apikey':sbKey,'Authorization':'Bearer '+sbKey,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''},body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error('Supabase: '+(await r.text()));
+  return method==='DELETE'?null:r.json();
 }
-
-// Supabase helpers
-async function sbRequest(method, path, body) {
-  const resp = await fetch(sbUrl + '/rest/v1/' + path, {
-    method,
-    headers: {
-      'apikey': sbKey,
-      'Authorization': 'Bearer ' + sbKey,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'return=representation' : ''
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!resp.ok) {
-    const err = await resp.text();
-    throw new Error('Supabase error: ' + err);
-  }
-  return method === 'DELETE' ? null : resp.json();
+ 
+async function loadLeads(){
+  if(sbUrl&&sbKey){
+    try{const rows=await sbReq('GET','ehr_leads?order=final_score.desc,scanned_at.desc&select=*');leads=rows.map(r=>({...r.data,id:r.lead_id,status:r.status,contacted:r.contacted,scannedAt:r.scanned_at}));setSync('ok');}
+    catch(e){leads=JSON.parse(localStorage.getItem(LK)||'[]');setSync('err');}
+  }else{leads=JSON.parse(localStorage.getItem(LK)||'[]');setSync('local');}
+  render();
 }
-
-async function loadLeads() {
-  if (!sbUrl || !sbKey) { renderLeads(); return; }
-  updateSync('syncing');
-  try {
-    const rows = await sbRequest('GET', 'ehr_leads?order=final_score.desc,scanned_at.desc&select=*');
-    allLeads = rows.map(r => ({ ...r.data, id: r.lead_id, status: r.status, contacted: r.contacted, scannedAt: r.scanned_at }));
-    updateSync('ok');
-  } catch(e) {
-    updateSync('error');
-    showToast('Could not load from Supabase — check config');
-  }
-  renderLeads();
+ 
+async function upsert(l){
+  const row={lead_id:l.id,final_score:l.finalScore,status:l.status||'new',contacted:l.contacted||false,scanned_at:l.scannedAt||new Date().toISOString(),data:(({id,status,contacted,scannedAt,...r})=>r)(l)};
+  if(sbUrl&&sbKey){try{await sbReq('POST','ehr_leads',row);}catch(e){console.warn(e);}}
+  const loc=JSON.parse(localStorage.getItem(LK)||'[]');
+  const i=loc.findIndex(x=>x.id===l.id);
+  if(i>=0)loc[i]={...l};else loc.push({...l});
+  localStorage.setItem(LK,JSON.stringify(loc));
 }
-
-async function saveLeads() {
-  // saveLeads is called after bulk operations — just reload from DB
-  await loadLeads();
+ 
+async function patch(id,fields){
+  if(sbUrl&&sbKey){try{await sbReq('PATCH','ehr_leads?lead_id=eq.'+id,fields);}catch(e){console.warn(e);}}
+  const loc=JSON.parse(localStorage.getItem(LK)||'[]');
+  const l=loc.find(x=>x.id===id);
+  if(l){Object.assign(l,fields);localStorage.setItem(LK,JSON.stringify(loc));}
 }
-
-async function upsertLead(l) {
-  if (!sbUrl || !sbKey) return;
-  await sbRequest('POST', 'ehr_leads', {
-    lead_id: l.id,
-    final_score: l.finalScore,
-    status: l.status || 'new',
-    contacted: l.contacted || false,
-    scanned_at: l.scannedAt || new Date().toISOString(),
-    data: (({ id, status, contacted, scannedAt, ...rest }) => rest)(l)
-  });
+ 
+function setSync(state){
+  const p=document.getElementById('syn'),t=document.getElementById('stxt');
+  p.className='sync';
+  if(state==='ok'){p.classList.add('live');t.textContent=leads.length+' leads synced';}
+  else if(state==='local')t.textContent=leads.length?leads.length+' leads (local)':'No leads yet';
+  else if(state==='err')t.textContent='Sync error — using local';
+  else t.textContent='Syncing…';
 }
-
-async function patchLead(id, fields) {
-  if (!sbUrl || !sbKey) return;
-  await sbRequest('PATCH', 'ehr_leads?lead_id=eq.' + id, fields);
-}
-
-async function deleteAllLeads() {
-  if (!sbUrl || !sbKey) return;
-  await sbRequest('DELETE', 'ehr_leads?lead_id=neq.NONE');
-}
-
-function updateSync(state) {
-  const pill = document.getElementById('sync-pill');
-  const txt = document.getElementById('sync-text');
-  if (state === 'syncing') { pill.classList.remove('live'); txt.textContent = 'Syncing…'; }
-  else if (state === 'error') { pill.classList.remove('live'); txt.textContent = 'Sync error'; }
-  else if (allLeads.length > 0) { pill.classList.add('live'); txt.textContent = allLeads.length + ' leads synced'; }
-  else { pill.classList.remove('live'); txt.textContent = 'No leads yet'; }
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  document.getElementById('toast-msg').textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-async function runScan() {
-  const key = getKey();
-  if (!key) {
-    document.getElementById('api-banner').style.display = 'flex';
-    document.getElementById('api-key-input').focus();
-    showToast('Enter your Anthropic API key first');
-    return;
-  }
-  const btn = document.getElementById('run-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader" aria-hidden="true"></i> Scanning…';
-  const prog = document.getElementById('progress-pane');
-  prog.classList.add('show');
-  const steps = ['ps1','ps2','ps3','ps4','ps5'];
-  steps.forEach(s => { document.getElementById(s).className = 'progress-step'; });
-
-  async function adv(i) {
-    if (i > 0) document.getElementById(steps[i-1]).classList.add('done');
-    document.getElementById(steps[i]).classList.add('active');
-    await new Promise(r => setTimeout(r, 850 + Math.random() * 550));
-  }
-
-  try {
-    await adv(0); await adv(1); await adv(2); await adv(3);
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: 'Run the EHR prospecting scan now. Return the JSON array.' }]
-      })
-    });
+ 
+function toast(msg){const t=document.getElementById('toast');document.getElementById('tmsg').textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+ 
+async function runScan(){
+  const btn=document.getElementById('run-btn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Scanning…';
+  const pg=document.getElementById('prog');pg.classList.add('on');
+  const ids=['p1','p2','p3','p4','p5'];
+  ids.forEach(s=>document.getElementById(s).className='ps');
+  async function adv(i){if(i>0)document.getElementById(ids[i-1]).classList.add('done');document.getElementById(ids[i]).classList.add('active');await new Promise(r=>setTimeout(r,800+Math.random()*500));}
+  try{
+    await adv(0);await adv(1);await adv(2);await adv(3);
+    const resp=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,system:PROMPT,messages:[{role:'user',content:'Run the EHR prospecting scan. Return only the JSON array.'}]})});
     await adv(4);
-    steps.forEach(s => document.getElementById(s).classList.add('done'));
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
-    const raw = data.content.map(b => b.text || '').join('');
-    let newLeads;
-    try { newLeads = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
-    catch(e) { throw new Error('Could not parse AI response'); }
-
-    const existingIds = new Set(allLeads.map(l => l.id));
-    let added = 0;
-    const toInsert = [];
-    newLeads.forEach(l => {
-      if (!existingIds.has(l.id)) {
-        l.status = 'new';
-        l.scannedAt = new Date().toISOString();
-        toInsert.push(l);
-        added++;
-      }
-    });
-    for (const l of toInsert) { await upsertLead(l); }
-    await loadLeads();
-    prog.classList.remove('show');
-    showToast('Added ' + added + ' new lead' + (added !== 1 ? 's' : '') + ' to shared pool');
-  } catch(err) {
-    prog.classList.remove('show');
-    document.getElementById('leads-section').innerHTML =
-      '<div class="empty"><i class="ti ti-alert-circle" aria-hidden="true"></i><p>Scan failed: ' + err.message + '</p></div>';
+    ids.forEach(s=>document.getElementById(s).classList.add('done'));
+    if(!resp.ok)throw new Error('Proxy error '+resp.status+': '+(await resp.text()).slice(0,120));
+    const data=await resp.json();
+    if(data.error)throw new Error(data.error.message);
+    const raw=data.content.map(b=>b.text||'').join('');
+    const match=raw.match(/\[[\s\S]*\]/);
+    if(!match)throw new Error('No JSON array in response');
+    const nl=JSON.parse(match[0]);
+    if(!Array.isArray(nl))throw new Error('Invalid response');
+    const ex=new Set(leads.map(l=>l.id));
+    let added=0;
+    for(const l of nl){if(!ex.has(l.id)){l.status='new';l.scannedAt=new Date().toISOString();await upsert(l);added++;}}
+    await loadLeads();pg.classList.remove('on');
+    toast('Added '+added+' new lead'+(added!==1?'s':'')+' to pool');
+  }catch(err){
+    pg.classList.remove('on');
+    document.getElementById('leads').innerHTML='<div class="empty"><i class="ti ti-alert-circle" aria-hidden="true"></i><p>Scan failed: '+err.message+'</p></div>';
   }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-refresh" aria-hidden="true"></i> Re-scan';
+  btn.disabled=false;btn.innerHTML='<i class="ti ti-refresh" aria-hidden="true"></i> Re-scan';
 }
-
-function renderLeads() {
-  const sigF = document.getElementById('sig-filter').value;
-  const tierF = document.getElementById('tier-filter').value;
-  const scoreF = document.getElementById('score-filter').value;
-  const statusF = document.getElementById('status-filter').value;
-
-  let f = allLeads.filter(l => {
-    if (sigF !== 'all' && l.signalType !== sigF) return false;
-    if (tierF !== 'all' && String(l.tier) !== tierF) return false;
-    if (scoreF !== 'all' && String(l.finalScore) !== scoreF) return false;
-    if (statusF === 'new' && l.status !== 'new') return false;
-    if (statusF === 'active' && l.status === 'dismissed') return false;
-    if (statusF === 'dismissed' && l.status !== 'dismissed') return false;
+ 
+function render(){
+  const fs=document.getElementById('f-sig').value,ft=document.getElementById('f-tier').value,fc=document.getElementById('f-score').value,fst=document.getElementById('f-status').value;
+  const f=leads.filter(l=>{
+    if(fs!=='all'&&l.signalType!==fs)return false;
+    if(ft!=='all'&&String(l.tier)!==ft)return false;
+    if(fc!=='all'&&String(l.finalScore)!==fc)return false;
+    if(fst==='new'&&l.status!=='new')return false;
+    if(fst==='active'&&l.status==='dismissed')return false;
+    if(fst==='dismissed'&&l.status!=='dismissed')return false;
     return true;
   });
-
-  document.getElementById('s-total').textContent = allLeads.length || '0';
-  document.getElementById('s-new').textContent = allLeads.filter(l => l.status === 'new').length || '0';
-  document.getElementById('s-5').textContent = allLeads.filter(l => l.finalScore === 5).length || '0';
-  document.getElementById('s-4').textContent = allLeads.filter(l => l.finalScore === 4).length || '0';
-  document.getElementById('s-3').textContent = allLeads.filter(l => l.finalScore === 3).length || '0';
-
-  const section = document.getElementById('leads-section');
-  if (!allLeads.length) {
-    section.innerHTML = '<div class="empty"><i class="ti ti-radar" aria-hidden="true"></i><p>No leads yet — click <strong>Run scan</strong> to find in-market buyers</p></div>';
-    return;
-  }
-  if (!f.length) {
-    section.innerHTML = '<div class="empty"><i class="ti ti-filter" aria-hidden="true"></i><p>No leads match current filters</p></div>';
-    return;
-  }
-  section.innerHTML = f.map(leadCard).join('');
+  document.getElementById('st').textContent=leads.length||'0';
+  document.getElementById('sn').textContent=leads.filter(l=>l.status==='new').length||'0';
+  document.getElementById('s5').textContent=leads.filter(l=>l.finalScore===5).length||'0';
+  document.getElementById('s4').textContent=leads.filter(l=>l.finalScore===4).length||'0';
+  document.getElementById('s3').textContent=leads.filter(l=>l.finalScore===3).length||'0';
+  const el=document.getElementById('leads');
+  if(!leads.length){el.innerHTML='<div class="empty"><i class="ti ti-radar" aria-hidden="true"></i><p>Click <strong>Run scan</strong> to find in-market EHR buyers</p></div>';return;}
+  if(!f.length){el.innerHTML='<div class="empty"><i class="ti ti-filter" aria-hidden="true"></i><p>No leads match current filters</p></div>';return;}
+  el.innerHTML=f.map(cardHTML).join('');
 }
-
-function leadCard(l) {
-  const sc = l.finalScore;
-  const isNew = l.status === 'new';
-  const isDismissed = l.status === 'dismissed';
-  const scoreLabel = sc === 5 ? 'Priority' : sc === 4 ? 'Strong' : 'Qualified';
-  const scClass = 'sc-' + sc;
-  const avCls = sc === 5 ? 'av-blue' : sc === 4 ? 'av-teal' : 'av-amber';
-  const tierBadge = l.tier === 1 ? 'b-blue' : l.tier === 2 ? 'b-teal' : 'b-gray';
-  const sigLabel = { recommendation:'Seeking recommendation', dissatisfied:'Dissatisfied w/ EHR', 'new-practice':'New practice', guidance:'Practice mgmt' }[l.signalType] || l.signalType;
-  const initials = (l.avatarInitials || l.name.split(' ').map(w => w[0]).join('').slice(0,2)).toUpperCase();
-  const scannedAgo = l.scannedAt ? timeSince(l.scannedAt) : '';
-  const contactLink = l.contactInfo && l.contactInfo !== 'unknown'
-    ? '<a href="' + (l.contactInfo.startsWith('http') ? l.contactInfo : 'https://' + l.contactInfo) + '" target="_blank" rel="noopener" style="color:var(--blue)">View profile</a>'
-    : 'Not public';
-
-  return `<div class="lead-card score-${sc}${isDismissed ? ' dismissed' : ''}" id="card-${l.id}">
-  <div class="lead-header" onclick="toggleCard('${l.id}')">
-    <div class="avatar ${avCls}">${initials}</div>
-    <div class="lead-info">
-      <div class="lead-name">${isNew ? '<span class="new-dot"></span>' : ''} ${l.name}${l.contacted ? ' <span class="badge b-contacted">contacted</span>' : ''}</div>
-      <div class="lead-sub">${l.title}${l.location && l.location !== 'unknown' ? ' · ' + l.location : ''}</div>
-      <div class="badges">
-        <span class="badge b-blue">${scoreLabel} · ${sc}/5</span>
-        <span class="badge ${tierBadge}">${l.specialty}</span>
-        <span class="badge b-gray">${l.source}</span>
-        <span class="badge b-coral">${sigLabel}</span>
-        ${isNew ? '<span class="badge b-new">New</span>' : ''}
-      </div>
-    </div>
-    <div class="score-circle ${scClass}">${sc}</div>
-  </div>
-  <div class="lead-body" id="lb-${l.id}">
-    <dl class="detail-grid">
-      <dt>Practice type</dt><dd>${l.practiceType || 'unknown'}</dd>
-      <dt>Signal strength</dt><dd>${l.signalStrength}/3</dd>
-      <dt>Specialty tier</dt><dd>Tier ${l.tier}</dd>
-      <dt>Signal date</dt><dd>${l.signalDate || 'recent'}</dd>
-      <dt>Contact</dt><dd>${contactLink}</dd>
-      <dt>Added</dt><dd>${scannedAgo}</dd>
-    </dl>
-    <div class="signal-quote">${l.signalSummary}</div>
-    ${l.notes ? `<p style="font-size:11px;color:var(--text2);margin-top:6px"><strong style="color:var(--text)">Notes:</strong> ${l.notes}</p>` : ''}
-    <div class="action-row">
-      <button class="btn" onclick="draftOutreach('${l.id}')"><i class="ti ti-mail" aria-hidden="true"></i> Draft outreach</button>
-      <button class="btn" onclick="markContacted('${l.id}')"><i class="ti ti-check" aria-hidden="true"></i> Mark contacted</button>
-      <button class="btn btn-ghost" onclick="dismissLead('${l.id}')">${isDismissed ? 'Restore' : 'Dismiss'}</button>
+ 
+function cardHTML(l){
+  const sc=l.finalScore,isN=l.status==='new',isDis=l.status==='dismissed';
+  const scL=sc===5?'Priority':sc===4?'Strong':'Qualified';
+  const av='av'+sc,scC='sco'+sc;
+  const tb=l.tier===1?'bbl':l.tier===2?'btl':'bam';
+  const sigL={recommendation:'Seeking rec',dissatisfied:'Dissatisfied','new-practice':'New practice',guidance:'Practice mgmt'}[l.signalType]||l.signalType;
+  const ini=(l.avatarInitials||l.name.split(' ').map(w=>w[0]).join('').slice(0,2)).toUpperCase();
+  const ago=l.scannedAt?ts(l.scannedAt):'';
+  const cL=l.contactInfo&&l.contactInfo!=='unknown'?'<a href="'+(l.contactInfo.startsWith('http')?l.contactInfo:'https://'+l.contactInfo)+'" target="_blank" rel="noopener" style="color:var(--blue)">View</a>':'Not public';
+  return `<div class="card s${sc}${isDis?' dis':''}" id="c-${l.id}">
+<div class="ch" onclick="openCard('${l.id}')">
+  <div class="av ${av}">${ini}</div>
+  <div class="ci">
+    <div class="cn">${isN?'<span class="ndot"></span>':''} ${l.name}${l.contacted?' <span class="bg bdn">contacted</span>':''}</div>
+    <div class="cr">${l.title}${l.location&&l.location!=='unknown'?' · '+l.location:''}</div>
+    <div class="bgs">
+      <span class="bg bbl">${scL} · ${sc}/5</span>
+      <span class="bg ${tb}">${l.specialty}</span>
+      <span class="bg bgy">${l.source}</span>
+      <span class="bg bco">${sigL}</span>
+      ${isN?'<span class="bg bnw">New</span>':''}
     </div>
   </div>
+  <div class="sco ${scC}">${sc}</div>
+</div>
+<div class="cb" id="b-${l.id}">
+  <dl class="dg">
+    <dt>Practice</dt><dd>${l.practiceType||'unknown'}</dd>
+    <dt>Signal strength</dt><dd>${l.signalStrength}/3</dd>
+    <dt>Tier</dt><dd>Tier ${l.tier}</dd>
+    <dt>Signal date</dt><dd>${l.signalDate||'recent'}</dd>
+    <dt>Contact</dt><dd>${cL}</dd>
+    <dt>Added</dt><dd>${ago}</dd>
+  </dl>
+  <div class="sq">${l.signalSummary}</div>
+  ${l.notes?'<p style="font-size:11px;margin-top:4px"><strong>Notes:</strong> '+l.notes+'</p>':''}
+  <div class="ar">
+    <button onclick="draftMsg('${l.id}')"><i class="ti ti-mail" aria-hidden="true"></i> Draft outreach</button>
+    <button onclick="markDone('${l.id}')"><i class="ti ti-check" aria-hidden="true"></i> Mark contacted</button>
+    <button class="btn-g" onclick="dismiss('${l.id}')">${isDis?'Restore':'Dismiss'}</button>
+  </div>
+</div>
 </div>`;
 }
-
-async function toggleCard(id) {
-  const body = document.getElementById('lb-' + id);
-  body.classList.toggle('open');
-  const l = allLeads.find(x => x.id === id);
-  if (l && l.status === 'new' && body.classList.contains('open')) {
-    await patchLead(id, { status: 'active' });
-    l.status = 'active';
-    renderLeads();
-    // re-open after re-render
-    setTimeout(() => {
-      const b = document.getElementById('lb-' + id);
-      if (b) b.classList.add('open');
-    }, 10);
-  }
+ 
+async function openCard(id){
+  const b=document.getElementById('b-'+id);b.classList.toggle('open');
+  const l=leads.find(x=>x.id===id);
+  if(l&&l.status==='new'&&b.classList.contains('open')){l.status='active';await patch(id,{status:'active'});render();setTimeout(()=>{const nb=document.getElementById('b-'+id);if(nb)nb.classList.add('open');},10);}
 }
-
-async function dismissLead(id) {
-  const l = allLeads.find(x => x.id === id);
-  if (!l) return;
-  const newStatus = l.status === 'dismissed' ? 'active' : 'dismissed';
-  await patchLead(id, { status: newStatus });
-  await loadLeads();
-  showToast(newStatus === 'dismissed' ? 'Lead dismissed' : 'Lead restored');
+async function dismiss(id){const l=leads.find(x=>x.id===id);if(!l)return;const ns=l.status==='dismissed'?'active':'dismissed';l.status=ns;await patch(id,{status:ns});render();toast(ns==='dismissed'?'Lead dismissed':'Lead restored');}
+async function markDone(id){const l=leads.find(x=>x.id===id);if(!l)return;l.contacted=true;l.status='active';await patch(id,{contacted:true,status:'active'});render();toast('Marked as contacted');}
+async function clearAll(){if(!confirm('Clear all leads? This cannot be undone.'))return;if(sbUrl&&sbKey){try{await sbReq('DELETE','ehr_leads?lead_id=neq.NONE');}catch(e){}}localStorage.removeItem(LK);leads=[];setSync('local');render();toast('Lead pool cleared');}
+async function draftMsg(id){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  try{
+    const resp=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:'Draft a personalized outreach message for this EHR lead. Name: '+l.name+'. Title: '+l.title+'. Specialty: '+l.specialty+'. Signal: '+l.signalSummary+'. Keep under 100 words, warm but professional, reference their pain point, invite a brief call. No subject line.'}]})});
+    const data=await resp.json();
+    const txt=data.content.map(b=>b.text||'').join('');
+    const m=document.createElement('div');
+    m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px';
+    m.innerHTML='<div style="background:#fff;border-radius:10px;padding:20px;max-width:500px;width:100%"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:13px;font-weight:500">Outreach — '+l.name+'</span><button onclick="this.closest(\'[style*=fixed]\').remove()" style="border:none;background:none;cursor:pointer;font-size:20px;color:#6b6960;line-height:1">×</button></div><div id="otxt" style="font-size:12px;color:#6b6960;line-height:1.7;padding:10px;background:#f5f4f0;border-radius:6px;white-space:pre-wrap">'+txt+'</div><div style="display:flex;justify-content:flex-end;gap:6px;margin-top:10px"><button onclick="navigator.clipboard.writeText(document.getElementById(\'otxt\').textContent).then(()=>{})" style="font-size:12px"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button><button onclick="this.closest(\'[style*=fixed]\').remove()" style="font-size:12px;background:none;border:none;cursor:pointer;color:#6b6960">Close</button></div></div>';
+    document.body.appendChild(m);
+  }catch(e){toast('Could not generate outreach');}
 }
-
-async function markContacted(id) {
-  await patchLead(id, { contacted: true, status: 'active' });
-  await loadLeads();
-  showToast('Marked as contacted');
-}
-
-async function clearAll() {
-  if (!confirm('Clear all leads from the shared pool? This affects everyone.')) return;
-  await deleteAllLeads();
-  allLeads = [];
-  updateSync('ok');
-  renderLeads();
-  showToast('Lead pool cleared');
-}
-
-function draftOutreach(id) {
-  const l = allLeads.find(x => x.id === id);
-  if (!l) return;
-  const key = getKey();
-  if (!key) { showToast('Enter your API key first'); return; }
-
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px';
-  modal.innerHTML = `<div style="background:var(--surface);border-radius:var(--radius);padding:24px;max-width:520px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.15)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <span style="font-size:14px;font-weight:500">Draft outreach — ${l.name}</span>
-      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px">×</button>
-    </div>
-    <div id="outreach-content" style="font-size:12px;color:var(--text2);line-height:1.7;min-height:80px;padding:12px;background:var(--bg);border-radius:var(--radius-sm)">Generating…</div>
-    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
-      <button class="btn" onclick="copyOutreach()"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
-      <button class="btn btn-ghost" onclick="this.closest('[style*=fixed]').remove()">Close</button>
-    </div>
-  </div>`;
-  document.body.appendChild(modal);
-
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6', max_tokens: 300,
-      messages: [{ role: 'user', content: `Draft a personalized outreach message for this EHR lead. Name: ${l.name}. Title: ${l.title}. Specialty: ${l.specialty}. Signal: ${l.signalSummary}. Signal type: ${l.signalType}. Practice: ${l.practiceType}. Keep under 100 words, warm but professional, reference their specific pain point, invite a brief call. No subject line needed.` }]
-    })
-  }).then(r => r.json()).then(d => {
-    const txt = d.content.map(b => b.text || '').join('');
-    document.getElementById('outreach-content').textContent = txt;
-  }).catch(() => {
-    document.getElementById('outreach-content').textContent = 'Failed to generate. Check your API key.';
-  });
-}
-
-function copyOutreach() {
-  const txt = document.getElementById('outreach-content').textContent;
-  navigator.clipboard.writeText(txt).then(() => showToast('Copied to clipboard'));
-}
-
-function timeSince(iso) {
-  const s = Math.floor((Date.now() - new Date(iso)) / 1000);
-  if (s < 60) return 'just now';
-  if (s < 3600) return Math.floor(s / 60) + 'm ago';
-  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
-  return Math.floor(s / 86400) + 'd ago';
-}
-
-['sig-filter','tier-filter','score-filter','status-filter'].forEach(id => {
-  document.getElementById(id).addEventListener('change', renderLeads);
-});
-
-loadConfig();
-checkBanner();
-loadLeads();
+function ts(iso){const s=Math.floor((Date.now()-new Date(iso))/1000);if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+['f-sig','f-tier','f-score','f-status'].forEach(id=>document.getElementById(id).addEventListener('change',render));
+loadCfg();loadLeads();
 </script>
 </body>
 </html>
